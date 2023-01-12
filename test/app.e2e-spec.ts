@@ -1,4 +1,4 @@
-import { EventType, OnData } from '../lib/tcp-server.types';
+import { EventType, OnData, OnTimeout } from '../lib/tcp-server.types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { filter, map, take } from 'rxjs';
 
@@ -16,6 +16,12 @@ describe('Events (e2e)', () => {
       imports: [
         TCPServerModule.register({
           port: 3001,
+          host: "127.0.0.1",
+          timeout: 1000,
+          keepAlive: {
+            enable: true,
+            initialDelay: 2000
+          },
         }),
       ],
     }).compile();
@@ -50,5 +56,45 @@ describe('Events (e2e)', () => {
         }
       });
     exec('{ echo "mydata"; sleep 1; } | telnet 127.0.0.1 3001');
+  });
+
+  it('Should receive timeout event', (done) => {
+    service.onEvent
+      .pipe(
+        filter((data) => data.type === EventType.TIMEOUT),
+        map((data) => data as OnTimeout),
+        take(1),
+      )
+      .subscribe((event) => {
+        try {
+          expect(event).toHaveProperty('id');
+          expect(event).toHaveProperty('type');
+          expect(event.type).toEqual(EventType.TIMEOUT);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
+    exec('telnet 127.0.0.1 3001');
+  });
+
+  it('Should receive timeout event', (done) => {
+    service.onEvent
+      .pipe(
+        filter((data) => data.type === EventType.TIMEOUT),
+        map((data) => data as OnTimeout),
+        take(1),
+      )
+      .subscribe((event) => {
+        try {
+          expect(event).toHaveProperty('id');
+          expect(event).toHaveProperty('type');
+          expect(event.type).toEqual(EventType.TIMEOUT);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
+    exec('telnet 127.0.0.1 3001');
   });
 });

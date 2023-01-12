@@ -1,12 +1,12 @@
 import { EventCommon, EventType, OnClose, OnData } from './tcp-server.types';
-import { TCPServerModule, tcpServer } from './tcp-server.module';
 import { Test, TestingModule } from '@nestjs/testing';
-import { filter, map, pipe, take } from 'rxjs';
+import { filter, map, take } from 'rxjs';
 
-import { Server } from 'net';
+import { Socket } from 'net';
 import { TCPServerService } from './tcp-server.service';
 import { TCP_INSTANCE_TOKEN } from './tcp-server.constants';
 import { exec } from 'child_process';
+import { tcpServer } from './tcp-server.module';
 
 describe('TCPServerService', () => {
   let service: TCPServerService;
@@ -67,8 +67,8 @@ describe('TCPServerService', () => {
     exec('{ sleep 100; } | telnet 127.0.0.1 3000');
   });
 
-  describe('Socket identifier', () => {
-    it('Should have socket identifer (id) in case of "Connection" event', (done) => {
+  describe('All socket events should have required data', () => {
+    it('Should have socket identifer (id) & socket instance in case of "Connection" event', (done) => {
       service.onEvent
         .pipe(
           filter((event) => event.type === EventType.CONNECTION),
@@ -78,6 +78,8 @@ describe('TCPServerService', () => {
         .subscribe((event) => {
           try {
             expect(event).toHaveProperty('id');
+            expect(event).toHaveProperty('socket');
+            expect(event.socket).toBeInstanceOf(Socket);
             done();
           } catch (err) {
             done(err);
@@ -86,7 +88,7 @@ describe('TCPServerService', () => {
       exec('{ sleep 1; } | telnet 127.0.0.1 3000');
     });
 
-    it('Should have socket identifer (id) in case of "Data" event', (done) => {
+    it('Should have socket identifer (id) & socket instance in case of "Data" event', (done) => {
       service.onEvent
         .pipe(
           filter((event) => event.type === EventType.DATA),
@@ -96,6 +98,8 @@ describe('TCPServerService', () => {
         .subscribe((event) => {
           try {
             expect(event).toHaveProperty('id');
+            expect(event).toHaveProperty('socket');
+            expect(event.socket).toBeInstanceOf(Socket);
             done();
           } catch (err) {
             done(err);
@@ -104,25 +108,7 @@ describe('TCPServerService', () => {
       exec('{ echo "testcommand"; sleep 1; } | telnet 127.0.0.1 3000');
     });
 
-    it('Should have socket identifer (id) in case of "Close" event', (done) => {
-      service.onEvent
-        .pipe(
-          filter((event) => event.type === EventType.CLOSE),
-          map((data) => data as EventCommon),
-          take(1),
-        )
-        .subscribe((event) => {
-          try {
-            expect(event).toHaveProperty('id');
-            done();
-          } catch (err) {
-            done(err);
-          }
-        });
-      exec('{ echo "testcommand"; sleep 1; } | telnet 127.0.0.1 3000');
-    });
-
-    it('Should have socket identifer (id) in case of "End" event', (done) => {
+    it('Should have socket identifer (id) & socket instance in case of "End" event', (done) => {
       service.onEvent
         .pipe(
           filter((event) => event.type === EventType.END),
@@ -132,6 +118,28 @@ describe('TCPServerService', () => {
         .subscribe((event) => {
           try {
             expect(event).toHaveProperty('id');
+            expect(event).toHaveProperty('socket');
+            expect(event.socket).toBeInstanceOf(Socket);
+            done();
+          } catch (err) {
+            done(err);
+          }
+        });
+      exec('{ echo "testcommand"; sleep 1; } | telnet 127.0.0.1 3000');
+    });
+
+    it('Should have socket identifer (id) & socket instance in case of "Close" event', (done) => {
+      service.onEvent
+        .pipe(
+          filter((event) => event.type === EventType.CLOSE),
+          map((data) => data as EventCommon),
+          take(1),
+        )
+        .subscribe((event) => {
+          try {
+            expect(event).toHaveProperty('id');
+            expect(event).toHaveProperty('socket');
+            expect(event.socket).toBeInstanceOf(Socket);
             done();
           } catch (err) {
             done(err);

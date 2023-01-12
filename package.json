@@ -1,21 +1,25 @@
 {
   "name": "@hyperultima/nest-tcp-server",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "NestJS Simple TCP Server",
   "author": "Prabhjeet Singh",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "url": "https://github.com/hyperultima/nest-tcp-server#readme",
   "scripts": {
     "build": "rimraf -rf dist && tsc",
     "format": "prettier --write \"{lib,test}/**/*.ts\"",
     "lint": "eslint 'lib/**/*.ts' --fix",
-    "prepublish:npm": "npm run build",
+    "prepublish:npm": "npm test && npm run test:e2e && npm run build",
     "publish:npm": "npm publish --access public",
     "prepublish:next": "npm run build",
     "publish:next": "npm publish --access public --tag next",
     "test": "jest --runInBand --force-exit",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand --force-exit"
+  },
+  "dependencies": {
+    "nanoid": "^3.3.4"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -64,7 +68,8 @@
     },
     "testEnvironment": "node"
   },
-  "dependencies": {
-    "nanoid": "^3.3.4"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hyperultima/nest-tcp-server"
   }
 }

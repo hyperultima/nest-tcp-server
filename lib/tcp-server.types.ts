@@ -1,5 +1,17 @@
 import { Socket } from 'net';
 
+export interface KeepAlive {
+  /**
+   * Enable keep alive
+   */
+  enable?: boolean;
+
+  /**
+   * Initial delay (in milliseconds)
+   */
+  initialDelay?: number;
+}
+
 export interface TCPServerOptions {
   /**
    * Host
@@ -14,6 +26,16 @@ export interface TCPServerOptions {
    * default: 3000
    */
   port?: number;
+
+  /**
+   * keep-alive functionality
+   */
+  keepAlive?: KeepAlive;
+
+  /**
+   * Set timeout (in milliseconds)
+   */
+  timeout?: number;
 }
 
 /**
@@ -31,6 +53,11 @@ export interface EventCommon {
    * Socket identifier
    */
   id: string;
+
+  /**
+   * Socket instance
+   */
+  socket: Socket;
 }
 
 export enum EventType {
@@ -38,6 +65,7 @@ export enum EventType {
   CLOSE = 'CLOSE',
   END = 'END',
   CONNECTION = 'CONNECTION',
+  TIMEOUT = 'TIMEOUT',
 }
 
 export interface OnConnection {
@@ -45,6 +73,13 @@ export interface OnConnection {
    * Socket end
    */
   type: EventType.CONNECTION;
+}
+
+export interface OnTimeout {
+  /**
+   * Socket end
+   */
+  type: EventType.TIMEOUT;
 }
 
 export interface OnData {
@@ -81,4 +116,5 @@ export interface OnEnd {
 /**
  * Socket events
  */
-export type Event = (OnData | OnClose | OnEnd | OnConnection) & EventCommon;
+export type Event = (OnData | OnClose | OnEnd | OnConnection | OnTimeout) &
+  EventCommon;
