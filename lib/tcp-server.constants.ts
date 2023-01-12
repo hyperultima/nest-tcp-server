@@ -1,0 +1,1 @@
+export const TCP_INSTANCE_TOKEN = 'TCP_INSTANCE_TOKEN';

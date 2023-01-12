@@ -1,0 +1,39 @@
+FROM ubuntu:jammy
+
+# Environment variables
+ARG NODE_VERSION=18
+
+# Install sudo
+RUN apt-get update && apt-get install -y sudo
+
+# Add user
+RUN adduser --disabled-password --gecos '' hyperultima
+
+#  Add new user to sudo group
+RUN adduser hyperultima sudo
+
+# Ensure sudo group users are not 
+# asked for a password when using 
+# sudo command by ammending sudoers file
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+# now we can set USER to the 
+# user we just created
+USER hyperultima
+
+# Install required packages
+RUN sudo apt-get update && sudo apt upgrade -y && sudo apt-get install -y curl telnet
+
+# Work directory for new user
+WORKDIR /home/hyperultima/nest-tcp-server
+
+# Install requirements
+RUN curl -sL "https://deb.nodesource.com/setup_${NODE_VERSION}.x" | sudo bash - && \
+    sudo apt-get install -y nodejs && \
+    sudo apt-get install git -y
+
+# Global npm packages
+RUN sudo npm -g i @nestjs/cli@9
+
+# Clean
+RUN  sudo apt-get clean -y && sudo rm -rf /var/lib/apt/lists/*
