@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 
 export class ManageConnections {
   /**
-   * Get connection
+   * Get socket instance
    *
    * @param id - socket identifier
    * @returns socker | null if doesn't exists

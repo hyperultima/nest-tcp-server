@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Server, Socket } from 'net';
 import { Subject } from 'rxjs';
 import { TCP_INSTANCE_TOKEN } from './tcp-server.constants';
-import { Event, EventType } from './tcp-server.types';
+import { Event, EventCommon, EventType } from './tcp-server.types';
 import { ManageConnections } from './helper/manage-connections.helper';
 
 @Injectable()
@@ -30,12 +30,21 @@ export class TCPServerService extends ManageConnections {
    * @param socket TCP socket
    */
   private _listenToEvents(socket: Socket) {
+    const that = this;
+
+    // common data for event
+    const common: EventCommon = {
+      id: socket.id,
+      get socket() {
+        return that.getSocket(socket.id);
+      },
+    };
+
     // data event
     socket.on('data', (data) => {
       this.onEvent.next({
-        id: socket.id,
+        ...common,
         type: EventType.DATA,
-        // slice ending character '\n'
         data: data,
       });
     });
@@ -43,7 +52,7 @@ export class TCPServerService extends ManageConnections {
     // on close
     socket.on('close', (hadError) => {
       this.onEvent.next({
-        id: socket.id,
+        ...common,
         type: EventType.CLOSE,
         hadError,
       });
@@ -52,8 +61,16 @@ export class TCPServerService extends ManageConnections {
     // on end
     socket.on('end', () => {
       this.onEvent.next({
-        id: socket.id,
+        ...common,
         type: EventType.END,
+      });
+    });
+
+    // on timeout
+    socket.on('timeout', () => {
+      this.onEvent.next({
+        ...common,
+        type: EventType.TIMEOUT,
       });
     });
   }
@@ -62,6 +79,8 @@ export class TCPServerService extends ManageConnections {
    * New Connection callback
    */
   private _connection(socket: Socket) {
+    const that = this;
+
     // add to active connections
     this.addSocket(socket);
 
@@ -72,6 +91,9 @@ export class TCPServerService extends ManageConnections {
     this.onEvent.next({
       id: socket.id,
       type: EventType.CONNECTION,
+      get socket() {
+        return that.getSocket(socket.id);
+      },
     });
   }
 
