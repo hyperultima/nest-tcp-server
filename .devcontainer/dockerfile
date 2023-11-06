@@ -33,7 +33,7 @@ RUN curl -sL "https://deb.nodesource.com/setup_${NODE_VERSION}.x" | sudo bash - 
     sudo apt-get install git -y
 
 # Global npm packages
-RUN sudo npm -g i @nestjs/cli@9
+RUN sudo npm -g i @nestjs/cli@10
 
 # Clean
 RUN  sudo apt-get clean -y && sudo rm -rf /var/lib/apt/lists/*
