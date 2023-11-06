@@ -1,6 +1,6 @@
 {
   "name": "@hyperultima/nest-tcp-server",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "NestJS Simple TCP Server",
   "author": "Prabhjeet Singh",
   "license": "MIT",
